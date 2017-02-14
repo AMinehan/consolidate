@@ -1,6 +1,29 @@
 var show = function(...args){
   args = args || '';
-  console.log(''+args.join(', ')+this);
+  console.log('' + args.join('') + this);
+  return this;
+}
+var show = function(...args){
+
+  var constructify = function(obj){
+    var result = ''
+    for (var i in obj){
+      if ((typeof obj[i] === 'object') && (obj[i] !== null)){
+        constructify(obj[i]);
+      } else {
+        result += i + ': ' + obj[i];
+      }
+    }
+    return result;
+  }
+
+  var message = constructify(this) + args.join('');
+  console.log(message);
+  return this;
+}
+
+var showObj = function(...args){
+  console.log(this + JSON.stringify(args.join(',')));
   return this;
 }
 
@@ -44,7 +67,7 @@ Object.defineProperty(Array.prototype, 'show', {
 
 Object.defineProperty(Object.prototype, 'show', {
   enumerable: false,
-  value: show
+  value: showObj
 });
 
 Object.defineProperty(String.prototype, 'show', {
