@@ -1,31 +1,38 @@
 var show = function(...args){
+
   args = args || '';
-  console.log('' + args.join('') + this);
-  return this;
-}
-var show = function(...args){
-
-  var constructify = function(obj){
-    var result = ''
-    for (var i in obj){
-      if ((typeof obj[i] === 'object') && (obj[i] !== null)){
-        constructify(obj[i]);
-      } else {
-        result += i + ': ' + obj[i];
-      }
-    }
-    return result;
+  if (args.length > 0) {
+    console.log('' + args.join(', ') + this);
+  } else {
+    console.log(this);
   }
-
-  var message = constructify(this) + args.join('');
-  console.log(message);
   return this;
+
+  // var constructify = function(obj){
+  //   var result = ''
+  //   for (var i in obj){
+  //     if ((typeof obj[i] === 'object') && (obj[i] !== null)){
+  //       constructify(obj[i]);
+  //     } else {
+  //       result += i + ': ' + obj[i];
+  //     }
+  //   }
+  //   return result;
+  // }
+
+  // var message = constructify(this) + args.join('');
+  // console.log(message);
+  // return this;
 }
 
-var showObj = function(...args){
-  console.log(this + JSON.stringify(args.join(',')));
-  return this;
-}
+// var showObj = function(...args){
+//   if (args.length > 0){
+//     console.log(this + JSON.stringify(args.join(',')));
+//   } else {
+//     console.log(this);
+//   }
+//   return this;
+// }
 
 var debug = function() {
   debugger;
@@ -43,31 +50,44 @@ var conc = function(...args) {
 
 var reduce = function(func, acc){
   var keys = Object.keys(this);
-  var i;
+  var acc;
   if (arguments.length === 1){
-    i = 1;
-    var acc = this[keys[0]]
-  } else {
-    i = 0;
+    acc = {keys[0]: this[keys[0]]}
   }
-  for (; i < keys.length; i++){
-    acc = func(acc, keys[i], this[keys[i]], i, this)
+  for (var i = 0; i < keys.length; i++){
+    acc = func(acc, this[keys[i]], keys[i], this)
   }
   return acc;
 }
 
-Object.defineProperty(Array.prototype, 'show', {
-  enumerable: false,
-  value: function(...args){
-  args = args || '';
-  console.log(''+args.join(', ')+this);
+var exec = function(func, i){
+  if (arguments.length < 2) {
+    var i = 1;
+  }
+  for (; i > 0; i--) {
+    func(this)
+  }
   return this;
 }
+
+Object.defineProperty(Array.prototype, 'show', {
+  enumerable: false,
+  value: show
 });
+
+Object.defineProperty(Object.prototype, 'exec', {
+  enumerable: false,
+  value: exec
+})
+
+Object.defineProperty(Array.prototype, 'exec', {
+  enumerable: false,
+  value: exec
+})
 
 Object.defineProperty(Object.prototype, 'show', {
   enumerable: false,
-  value: showObj
+  value: show
 });
 
 Object.defineProperty(String.prototype, 'show', {
@@ -114,7 +134,10 @@ Object.defineProperty(String.prototype, 'debug', {
 
 
 var newify = {'213': 213}
-newify.show();
+newify.reduce(function(a, b, c){
+  a[b] = c + 1
+  return a;
+}, {}).show();
 //todo:
 //map, each, reduce, filter for Object
 //repeat for Object and Array
